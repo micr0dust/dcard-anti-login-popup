@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         dcard反登入視窗
 // @namespace    https://github.com/wuilliam104286/dcard-anti-login-popup
-// @version      0.1
+// @version      1.0
 // @description  dcard anti login popup
 // @author       Microdust
 // @match        *://*.dcard.tw/*
@@ -14,23 +14,21 @@
 
     let pathName = window.location.pathname.split('/');
 
-    if ((pathName.indexOf("p") + 1)) {
-        let popupDetect = setInterval(() => {
-            let loginPopup = getElementByXpath("/html/body/div[2]/div[2]");
-            if (loginPopup && !hasClass(loginPopup, 'XaZHR')) {
-                loginPopup.remove();
-                document.body.style.overflow = 'unset';
-                clearInterval(popupDetect);
-            }
-        }, 100);
-    }
 
+    let loginPopup = document.querySelector('.__portal');
+    let observe = new MutationObserver(function(mutations, observe) {
+        let getChild = loginPopup.children;
+        //console.log(getChild.length);
+        for (let i = 0; i < getChild.length; i++) {
+            //console.log(getChild[i]);
+            if (!hasClass(getChild[i], 'XaZHR')) getChild[i].style.display = 'none';
+            //if (!hasClass(getChild[i], 'XaZHR')) loginPopup.removeChild(getChild[i]);
+        }
+        document.body.style.overflow = 'unset';
+    });
+    observe.observe(loginPopup, { 'childList': true });
 
     function hasClass(element, className) {
         return (' ' + element.className + ' ').indexOf(' ' + className + ' ') > -1;
-    }
-
-    function getElementByXpath(paths) {
-        return document.evaluate(paths, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
     }
 })();
